@@ -5,7 +5,7 @@
 ## Goals
 
 ✅ Provide an unoptimised version of BinSeg based on Rcpp/RcppArmadillo and implement the $\mathcal{O}(1)$ L2 cost function.  
-NOTE: The current version only returns a user-specified K-partition of the time series without storing smaller partitions and their costs.  
+**NOTE: The current version only returns a user-specified K-partition of the time series without storing smaller partitions and their costs.** 
 ⬜ Optimise BinSeg - not necessary to loop through all possible splits.  
 ⬜ Implement basic model selection criteria.  
 ⬜ Wrap these in an R6-based R package.  
@@ -14,7 +14,7 @@ NOTE: The current version only returns a user-specified K-partition of the time 
 
 ## OOP Interface 
 
-Users first create a C++ "Cost" object based on the time series. This object handles the computation of segment costs. 
+Users first create a C++ "Cost" object based on a time series. This object handles the computation of segment costs. 
 
 ```
 costObj = createCostObj(tsMat, costFunc = "L2") #tsMat: a time series matrix
