@@ -1,4 +1,4 @@
-R6BinSeg - An Object-Oriented R Package for Binary Segmentation via Modern C++
+# R6BinSeg - An Object-Oriented R Package for Binary Segmentation via Modern C++
 
 Goals:
 
