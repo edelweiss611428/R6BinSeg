@@ -27,7 +27,7 @@ The following methods are supported:
 
 - $fit(): Perform binary segmentation.
 ```
-BinSegObj$fit(minK = 2, maxK = 12, criterion = c("AIC", "BIC"), ...) 
+BinSegObj$fit(minK = 2, maxK = 12, ...) 
 ```
 - $predict(): Return the optimal segmentation based on the AIC (by default) or an user-provided K; must be called after BinSegObj$fit().
 ```
