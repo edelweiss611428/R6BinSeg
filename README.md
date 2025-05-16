@@ -1,5 +1,7 @@
 # R6BinSeg - An Object-Oriented R Package for Binary Segmentation via Modern C++
 
+This package is a demo intended for educational and presentation purposes only.
+
 Goals:
 
 - Provide an unoptimised version of BinSeg based on Rcpp/RcppArmadillo and implement the $\mathcal{O}(1)$ L2 cost function.
