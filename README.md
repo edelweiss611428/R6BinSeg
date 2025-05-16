@@ -4,12 +4,12 @@
 
 ## Goals:
 
-✅ Provide an unoptimised version of BinSeg based on Rcpp/RcppArmadillo and implement the $\mathcal{O}(1)$ L2 cost function.
-⬜ Optimise BinSeg - not necessary to loop through all possible splits.
-⬜ Implement basic model selection criteria.
-⬜ Wrap these in an R6-based R package.
-⬜ Implement other popular cost functions to be used in BinSeg (L1, regression discontinuity, AR(k), kernel-based, etc).
-⬜ Extend BinSeg take various cost functions (e.g., based on a common class "Cost").
+✅ Provide an unoptimised version of BinSeg based on Rcpp/RcppArmadillo and implement the $\mathcal{O}(1)$ L2 cost function.  
+⬜ Optimise BinSeg - not necessary to loop through all possible splits.  
+⬜ Implement basic model selection criteria.  
+⬜ Wrap these in an R6-based R package.  
+⬜ Implement other popular cost functions to be used in BinSeg (L1, regression discontinuity, AR(k), kernel-based, etc).  
+⬜ Extend BinSeg take various cost functions (e.g., based on a common class "Cost").  
 
 ## OOP Interface of the BinSeg
 
@@ -23,8 +23,16 @@ Then, initialise a (R6) BinSeg object, based on costObj. BinSeg does not rely on
 BinSegObj = BinSeg$new(costObj = costObj)
 ```
 The following methods are supported:
+
+- $fit(): Perform binary segmentation.
 ```
-BinSegObj$fit(minK = 2, maxK = 12, criterion = c("AIC", "BIC"), ...) #Perform binary segmentation.
-BinSegObj$predict(K = NULL, criterion = "AIC") #Return the optimal segmentation based on the AIC (by default); must be called after BinSegObj$fit().
-BinSegObj$plot(K = NULL, whichDim, criterion = "AIC") #Plot the optimal segmentation result.
+BinSegObj$fit(minK = 2, maxK = 12, criterion = c("AIC", "BIC"), ...) 
+```
+- $predict(): Return the optimal segmentation based on the AIC (by default) or an user-provided K; must be called after BinSegObj$fit().
+```
+BinSegObj$predict(K = NULL, criterion = "AIC")
+```
+- $plot(): \Plot the optimal segmentation based on the AIC (by default) or an user-provided K; must be called after BinSegObj$fit().
+```
+BinSegObj$plot(K = NULL, whichDim = NULL, criterion = "AIC") 
 ```
