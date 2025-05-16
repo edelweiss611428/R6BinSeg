@@ -2,7 +2,7 @@
 
 ## This package is a demo intended for educational and presentation purposes only!!!
 
-## Goals:
+## Goals
 
 ✅ Provide an unoptimised version of BinSeg based on Rcpp/RcppArmadillo and implement the $\mathcal{O}(1)$ L2 cost function.  
 ⬜ Optimise BinSeg - not necessary to loop through all possible splits.  
