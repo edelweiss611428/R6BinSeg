@@ -12,7 +12,7 @@
 ⬜ Implement other popular cost functions to be used in BinSeg (L1, regression discontinuity, AR(k), kernel-based, etc).  
 ⬜ Extend BinSeg take various cost functions (e.g., based on a common class "Cost").  
 
-## OOP Interface 
+## OOP interface (planned)
 
 Users first create a C++ "Cost" object based on a time series. This object handles the computation of segment costs. 
 
