@@ -29,11 +29,11 @@ The following methods are supported:
 ```
 BinSegObj$fit(minK = 2, maxK = 12, ...) 
 ```
-- $predict(): Return the optimal segmentation based on the AIC (by default) or an user-provided K; must be called after BinSegObj$fit().
+- $predict(): Return the optimal segmentation based on the AIC (by default) or a user-provided K; must be called after BinSegObj$fit().
 ```
 BinSegObj$predict(K = NULL, criterion = "AIC")
 ```
-- $plot(): Plot the optimal segmentation based on the AIC (by default) or an user-provided K; must be called after BinSegObj$fit().
+- $plot(): Plot the optimal segmentation based on the AIC (by default) or a user-provided K; must be called after BinSegObj$fit().
 ```
 BinSegObj$plot(K = NULL, whichDim = NULL, criterion = "AIC") 
 ```
