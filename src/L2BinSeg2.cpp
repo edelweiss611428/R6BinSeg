@@ -143,8 +143,9 @@ List binSegCpp2(Rcpp::XPtr<Cost> Xptr, const int& maxNRegimes) {
   int nRegimes = 2;
   List gbestCp = cpd0;
   List gsbestCp; // global
-
+  List gtbestCp; // global third best
   double gsmaxGain = -std::numeric_limits<double>::infinity(); // global
+  double gtmaxGain = -std::numeric_limits<double>::infinity();
 
   while(nRegimes < maxNRegimes){
     List tbestCp; //temporary best Cp
@@ -156,16 +157,6 @@ List binSegCpp2(Rcpp::XPtr<Cost> Xptr, const int& maxNRegimes) {
 
 
     for(int i = 0; i < 2; i++){
-      if(nRegimes > 3){
-        Rcout << Rcpp::as<int>(gsbestCp["start"]) << std::endl;
-        Rcout << Rcpp::as<int>(gsbestCp["cp"]) << std::endl;
-        Rcout << Rcpp::as<int>(gsbestCp["end"]) << std::endl;
-        Rcout << "LA" << std::endl;
-      }
-      Rcout << Rcpp::as<int>(gbestCp["start"]) << std::endl;
-      Rcout << Rcpp::as<int>(gbestCp["cp"]) << std::endl;
-      Rcout << Rcpp::as<int>(gbestCp["end"]) << std::endl;
-      Rcout << "NY" << std::endl;
       // here we expect that the best split will never have size 1
       if(i == 0){
         cpdi = miniOptCpp(Xnew, Rcpp::as<int>(gbestCp["start"]), Rcpp::as<int>(gbestCp["cp"]));
@@ -181,6 +172,7 @@ List binSegCpp2(Rcpp::XPtr<Cost> Xptr, const int& maxNRegimes) {
         gain = Rcpp::as<double>(gbestCp["rErr"]) - Rcpp::as<double>(cpdi["err"]);
       }
 
+
       if(gain > tmaxGain){
         tsmaxGain = tmaxGain;
         tmaxGain = gain;
@@ -194,6 +186,18 @@ List binSegCpp2(Rcpp::XPtr<Cost> Xptr, const int& maxNRegimes) {
     }
 
     nRegimes++;
+
+    if(tmaxGain > gsmaxGain){
+      gbestCp = tbestCp;
+      if(tsmaxGain > gsmaxGain){
+        gtbestCp = gsbestCp;
+        gtmaxGain = gsmaxGain;
+        gsbestCp = tsbestCp;
+        gsmaxGain = tsmaxGain;
+      } else{
+
+      }
+    }
 
     if(tmaxGain < gsmaxGain){
       gbestCp = gsbestCp;
