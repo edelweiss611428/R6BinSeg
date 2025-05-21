@@ -186,18 +186,18 @@ List binSegCpp2(Rcpp::XPtr<Cost> Xptr, const int& maxNRegimes) {
     }
 
     nRegimes++;
-
-    if(tmaxGain > gsmaxGain){
-      gbestCp = tbestCp;
-      if(tsmaxGain > gsmaxGain){
-        gtbestCp = gsbestCp;
+    // a > b & c > d
+    if(tmaxGain > gsmaxGain){ // if (a > c)
+      gbestCp = tbestCp; //max1 = a
+      if(tsmaxGain > gsmaxGain){ // if (b > c)
+        gtbestCp = gsbestCp; //max3 = c
         gtmaxGain = gsmaxGain;
-        gsbestCp = tsbestCp;
+        gsbestCp = tsbestCp;//max2 = b
         gsmaxGain = tsmaxGain;
       } else{
         // gsbestCp = gsbestCp // no change - just a note
         // gsmaxGain = gsmaxGain // no change - just a note
-        if(tsmaxGain > gtmaxGain){
+        if(tsmaxGain > gtmaxGain){ //b > d?
           gtbestCp = tsbestCp;
           gtmaxGain = tsmaxGain;
         } else{
@@ -205,18 +205,27 @@ List binSegCpp2(Rcpp::XPtr<Cost> Xptr, const int& maxNRegimes) {
           // gtmaxGain = gtmaxGain // no change - just a note
         }
       }
-    }
+    } else{ //if (a < c)
+      gbestCp = gsbestCp; //max1 = c
 
-    if(tmaxGain < gsmaxGain){
-      gbestCp = gsbestCp;
-      gsbestCp = tbestCp;
-      gsmaxGain = tmaxGain;
-    } else{
-        gbestCp = tbestCp;
-        if(tsmaxGain > gsmaxGain){
-          gsbestCp = tsbestCp;
-          gsmaxGain = tsmaxGain;
+      if(tmaxGain > gtmaxGain){ //if (a > d)
+        gsbestCp = tbestCp; // max2 = a
+        gsmaxGain = tmaxGain;
+
+        if(tsmaxGain > gtmaxGain){ //if (b >d)
+          gtbestCp = tsbestCp; //max3 = b
+          gtmaxGain = tsmaxGain;
+        } else {
+          // gtbestCp = gtbestCp // no change - just a note
+          // gtmaxGain = gtmaxGain // no change - just a note
         }
+      } else {
+        gtbestCp = tbestCp; //max3 = a
+        gtmaxGain = tmaxGain;
+        gsbestCp = gtbestCp; //max2 = d
+        gsmaxGain = gtmaxGain;
+
+      }
     }
 
     changePoints = arma::join_rows(changePoints, arma::Row<int>{Rcpp::as<int>(gbestCp["cp"])});
