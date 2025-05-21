@@ -6,7 +6,8 @@
 
 ✅ Provide an unoptimised version of BinSeg based on Rcpp/RcppArmadillo and implement the $\mathcal{O}(1)$ L2 cost function.  
 **NOTE: The current version only returns a user-specified K-partition of the time series without storing smaller partitions and their costs.**   
-⬜ Optimise BinSeg - not necessary to loop through all possible splits.  
+✅ Optimise BinSeg - not necessary to loop through all possible splits.  
+**NOTE: Some refactoring is needed.** 
 ⬜ Implement basic model selection criteria.  
 ⬜ Wrap these in an R6-based R package.  
 ⬜ Implement other popular cost functions to be used in BinSeg (L1, regression discontinuity, AR(k), kernel-based, etc).  
