@@ -108,11 +108,11 @@ inline List miniOptCpp(const Cost& Xnew, const int& start, const int& end) {
   }
 
   return List::create(
-      Named("valid") = true,
-      Named("err") = minErr,
-      Named("lErr") = minlErr,
-      Named("rErr") = minrErr,
-      Named("cp") = cp
+    Named("valid") = true,
+    Named("err") = minErr,
+    Named("lErr") = minlErr,
+    Named("rErr") = minrErr,
+    Named("cp") = cp
   );
 
 }
@@ -136,6 +136,8 @@ List binSegCpp(Rcpp::XPtr<Cost> Xptr, const int& maxNRegimes) {
   arma::Row<int> changePoints = arma::Row<int>{Rcpp::as<int>(cpd0["cp"])};
   arma::Row<int> regimes = arma::join_rows(arma::Row<int>{0}, changePoints, arma::Row<int>{nr});
   arma::Row<double> updatedErrs = arma::Row<double>{Rcpp::as<double>(cpd0["lErr"]), Rcpp::as<double>(cpd0["rErr"])};
+  arma::Row<int> splitted(2, arma::fill::ones); //This tells the program if a regime has been considered before?
+
 
   int nRegimes = 2;
   List bestCp;
@@ -146,7 +148,7 @@ List binSegCpp(Rcpp::XPtr<Cost> Xptr, const int& maxNRegimes) {
 
     double maxGain = -std::numeric_limits<double>::infinity();
 
-     for(int i = 0; i < nRegimes; i++){
+    for(int i = 0; i < nRegimes; i++){
 
 
       List cpdi = miniOptCpp(Xnew, regimes[i], regimes[i+1]);
