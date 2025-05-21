@@ -80,7 +80,9 @@ inline List miniOptCpp(const Cost& Xnew, const int& start, const int& end) {
       Named("err") = 0,
       Named("lErr") = 0,
       Named("rErr") = 0,
-      Named("cp") = start + 1
+      Named("start") = start,
+      Named("cp") = start + 1,
+      Named("end") = end
     );
   }
 
@@ -112,14 +114,16 @@ inline List miniOptCpp(const Cost& Xnew, const int& start, const int& end) {
     Named("err") = minErr,
     Named("lErr") = minlErr,
     Named("rErr") = minrErr,
-    Named("cp") = cp
+    Named("start") = start,
+    Named("cp") = cp,
+    Named("end") = end
   );
 
 }
 
 
 // [[Rcpp::export]]
-List binSegCpp(Rcpp::XPtr<Cost> Xptr, const int& maxNRegimes) {
+List binSegCpp2(Rcpp::XPtr<Cost> Xptr, const int& maxNRegimes) {
   Cost& Xnew = *Xptr;
   int nr = Xnew.nr;
   List cpd0 = miniOptCpp(Xnew, 0, nr);
@@ -127,65 +131,91 @@ List binSegCpp(Rcpp::XPtr<Cost> Xptr, const int& maxNRegimes) {
     stop("The maximum number of regimes must be less than or equal to the number of observations.");;
   }
 
+
   if(nr == 0){
     stop("There can be no changepoint when there is only one observation.");
   } else if (nr == 1 || maxNRegimes == 2){
     return cpd0;
   }
 
-  arma::Row<int> changePoints = arma::Row<int>{Rcpp::as<int>(cpd0["cp"])};
-  arma::Row<int> regimes = arma::join_rows(arma::Row<int>{0}, changePoints, arma::Row<int>{nr});
-  arma::Row<double> updatedErrs = arma::Row<double>{Rcpp::as<double>(cpd0["lErr"]), Rcpp::as<double>(cpd0["rErr"])};
-  arma::Row<int> splitted(2, arma::fill::ones); //This tells the program if a regime has been considered before?
-
+  arma::Row<int> changePoints = arma::Row<int>{Rcpp::as<int>(cpd0["cp"])}; //Final cpd results - will be updated
 
   int nRegimes = 2;
-  List bestCp;
-  int bestSplit;
-  arma::Row<double> currentErrs = updatedErrs;
+  List gbestCp = cpd0;
+  List gsbestCp; // global
+
+  double gsmaxGain = -std::numeric_limits<double>::infinity(); // global
 
   while(nRegimes < maxNRegimes){
+    List tbestCp; //temporary best Cp
+    List tsbestCp; //temporary 2nd best Cp
+    double tmaxGain = -std::numeric_limits<double>::infinity();
+    double tsmaxGain = -std::numeric_limits<double>::infinity();
+    List cpdi;
+    double gain;
 
-    double maxGain = -std::numeric_limits<double>::infinity();
 
-    for(int i = 0; i < nRegimes; i++){
-
-
-      List cpdi = miniOptCpp(Xnew, regimes[i], regimes[i+1]);
-      if(!cpdi["valid"]){
-        continue;
+    for(int i = 0; i < 2; i++){
+      if(nRegimes > 3){
+        Rcout << Rcpp::as<int>(gsbestCp["start"]) << std::endl;
+        Rcout << Rcpp::as<int>(gsbestCp["cp"]) << std::endl;
+        Rcout << Rcpp::as<int>(gsbestCp["end"]) << std::endl;
+        Rcout << "LA" << std::endl;
+      }
+      Rcout << Rcpp::as<int>(gbestCp["start"]) << std::endl;
+      Rcout << Rcpp::as<int>(gbestCp["cp"]) << std::endl;
+      Rcout << Rcpp::as<int>(gbestCp["end"]) << std::endl;
+      Rcout << "NY" << std::endl;
+      // here we expect that the best split will never have size 1
+      if(i == 0){
+        cpdi = miniOptCpp(Xnew, Rcpp::as<int>(gbestCp["start"]), Rcpp::as<int>(gbestCp["cp"]));
+        if(!cpdi["valid"]){
+          continue;
+        }
+        gain = Rcpp::as<double>(gbestCp["lErr"]) - Rcpp::as<double>(cpdi["err"]);
+      } else {
+        cpdi = miniOptCpp(Xnew, Rcpp::as<int>(gbestCp["cp"]), Rcpp::as<int>(gbestCp["end"]));
+        if(!cpdi["valid"]){
+          continue;
+        }
+        gain = Rcpp::as<double>(gbestCp["rErr"]) - Rcpp::as<double>(cpdi["err"]);
       }
 
-      double gain = currentErrs[i] - Rcpp::as<double>(cpdi["err"]);
-      if(gain > maxGain){
-        maxGain = gain;
-        bestCp = cpdi;
-        bestSplit = i;
+      if(gain > tmaxGain){
+        tsmaxGain = tmaxGain;
+        tmaxGain = gain;
+        tsbestCp = tbestCp;
+        tbestCp = cpdi;
+      } else { //only 2 scenarios - will be optimised later
+        tsmaxGain = gain;
+        tsbestCp = cpdi;
       }
+
     }
 
     nRegimes++;
-    updatedErrs.set_size(nRegimes);
-    updatedErrs.subvec(bestSplit, bestSplit+1) = arma::Row<double>{Rcpp::as<double>(bestCp["lErr"]), Rcpp::as<double>(bestCp["rErr"])};
 
-    for(int j = 0; j < bestSplit; j++){
-      updatedErrs[j] = currentErrs[j];
+    if(tmaxGain < gsmaxGain){
+      gbestCp = gsbestCp;
+      gsbestCp = tbestCp;
+      gsmaxGain = tmaxGain;
+    } else{
+        gbestCp = tbestCp;
+        if(tsmaxGain > gsmaxGain){
+          gsbestCp = tsbestCp;
+          gsmaxGain = tsmaxGain;
+        }
     }
 
-    for(int j = bestSplit+2; j < nRegimes; j++){
-      updatedErrs[j] = currentErrs[j-1];
-    }
-    changePoints = arma::join_rows(changePoints, arma::Row<int>{Rcpp::as<int>(bestCp["cp"])});
-    changePoints = arma::sort(changePoints);
-    regimes = arma::join_rows(arma::Row<int>{0}, changePoints, arma::Row<int>{nr});
-    currentErrs = updatedErrs;
+    changePoints = arma::join_rows(changePoints, arma::Row<int>{Rcpp::as<int>(gbestCp["cp"])});
+
   }
 
+
+
   return List::create(
-    Named("Regimes") = regimes
+    Named("second") = changePoints
   );
-
-
 }
 
 

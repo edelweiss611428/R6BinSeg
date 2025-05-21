@@ -3,6 +3,7 @@ library(R6)
 library("Rcpp")
 library("RcppArmadillo")
 sourceCpp("./src/L2BinSeg.cpp")
+sourceCpp("./src/L2BinSeg2.cpp")
 miniOpt = function(Xnew, start, end){
 
   nr = end - start
@@ -92,6 +93,7 @@ binSeg = function(Xnew, maxRegimes = 5, nr){
 
 }
 
+binSegCpp(Xnew, k)
 
 for(i in 1:1000){
   set.seed(i)
@@ -117,3 +119,15 @@ for(i in 1:1000){
   gc()
   Sys.sleep(1)
 }
+
+N = 70000
+k = 10
+p =  rep(1/k, k)
+
+# Draw one sample
+counts =  as.vector(rmultinom(n = 1, size = N, prob = p))
+X = rnorm(N, rep(rnorm(k,0, 25), counts), 5)
+Xnew = createCostObj(as.matrix(X))
+microbenchmark::microbenchmark(binSegCpp(Xnew, k),
+                               binSegCpp2(Xnew, k),
+                               binsegRcpp::binseg_normal(X, k))
