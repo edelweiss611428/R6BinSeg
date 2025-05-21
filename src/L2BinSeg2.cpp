@@ -195,7 +195,15 @@ List binSegCpp2(Rcpp::XPtr<Cost> Xptr, const int& maxNRegimes) {
         gsbestCp = tsbestCp;
         gsmaxGain = tsmaxGain;
       } else{
-
+        // gsbestCp = gsbestCp // no change - just a note
+        // gsmaxGain = gsmaxGain // no change - just a note
+        if(tsmaxGain > gtmaxGain){
+          gtbestCp = tsbestCp;
+          gtmaxGain = tsmaxGain;
+        } else{
+          // gtbestCp = gtbestCp // no change - just a note
+          // gtmaxGain = gtmaxGain // no change - just a note
+        }
       }
     }
 
