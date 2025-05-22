@@ -13,6 +13,27 @@
 ⬜ Implement other popular cost functions to be used in BinSeg (L1, regression discontinuity, AR(k), kernel-based, etc).  
 ⬜ Extend BinSeg take various cost functions (e.g., based on a common class "Cost").  
 
+
+
+## OOP interface (current)
+
+Users first initialise a (R6) BinSeg object, based on a time series matrix, the number of regimes (k), and a cost function. 
+```
+BinSegObj = BinSeg$new(tsMat = tsMat, k, costFunc = "L2")
+```
+The following methods are supported:
+
+- $fit(): Perform binary segmentation.
+```
+BinSegObj$fit() 
+```
+- $plot(): Plot the k-partition; must be called after BinSegObj$fit(); currently only supports one-dimensional data.
+```
+BinSegObj$plot() 
+```
+
+
+
 ## OOP interface (planned)
 
 Users first create a C++ "Cost" object based on a time series. This object handles the computation of segment costs. 
