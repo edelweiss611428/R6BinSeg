@@ -140,10 +140,14 @@ List binSegCpp(Rcpp::XPtr<Cost> Xptr, const int& maxNRegimes) {
 
 
   IntegerVector changePoints(maxNRegimes-1);
-  IntegerMatrix regimes(2, maxNRegimes-1);
+  IntegerMatrix regimes(2, maxNRegimes);
+  IntegerVector savedCps(maxNRegimes);
+
   LogicalVector visited(maxNRegimes, false);
   NumericVector currentErrs(maxNRegimes);
   NumericVector tempErrs(maxNRegimes);
+  NumericVector leftErrs(maxNRegimes);
+  NumericVector rightErrs(maxNRegimes);
   NumericVector gains(maxNRegimes);
 
 
@@ -159,61 +163,50 @@ List binSegCpp(Rcpp::XPtr<Cost> Xptr, const int& maxNRegimes) {
   regimes[3] = nr;
 
   int nRegimes = 2;
-  List bestCp;
   int bestIdx;
 
   while(nRegimes < maxNRegimes){
 
-    NumericVector tempErrs(maxNRegimes);
     double maxGain = -std::numeric_limits<double>::infinity();
     List cpdi;
 
     for(int i = 0; i < nRegimes; i++){
 
       if(not visited[i]){
-
+        visited[i] = true;
         cpdi = miniOptCpp(Xnew, regimes[2*i], regimes[2*i+1]);
 
         if(!cpdi["valid"]){
           continue;
         }
 
+        savedCps[i] = Rcpp::as<int>(cpdi["cp"]);
+        leftErrs[i] = Rcpp::as<double>(cpdi["lErr"]);
+        rightErrs[i] = Rcpp::as<double>(cpdi["rErr"]);
         gains[i] = currentErrs[i] - Rcpp::as<double>(cpdi["err"]);
 
       }
 
       if(gains[i] > maxGain){
         maxGain = gains[i];
-        bestCp = cpdi;
         bestIdx = i;
       }
     }
 
+    changePoints[nRegimes-1] = savedCps[bestIdx];
+    IntegerVector aIdx = IntegerVector::create(bestIdx, nRegimes);
+    visited[aIdx] = false;
+    currentErrs[aIdx] = NumericVector::create(leftErrs[bestIdx], rightErrs[bestIdx]);
+    int tEnd = regimes[2*bestIdx+1];
+    regimes[2*bestIdx+1] = savedCps[bestIdx];
+    regimes[2*nRegimes] = savedCps[bestIdx];
+    regimes[2*nRegimes+1] = tEnd;
     nRegimes++;
 
-    tempErrs[Range(bestIdx, bestIdx+1)] = NumericVector::create(Rcpp::as<double>(bestCp["lErr"]), Rcpp::as<double>(bestCp["rErr"]));
-
-    if(bestIdx > 0){
-      IntegerVector aIdx = Range(0, bestIdx-1);
-      tempErrs[aIdx] = currentErrs[aIdx];
-
-    }
-
-    if(bestIdx < nRegimes-1){
-      IntegerVector bIdx = Range(bestIdx+2,nRegimes);
-      tempErrs[bIdx] = currentErrs[bIdx];
-    }
-
-    changePoints[nRegimes-1] = Rcpp::as<int>(bestCp["cp"]);
-
-    changePoints = arma::join_rows(changePoints, arma::Row<int>{Rcpp::as<int>(bestCp["cp"])});
-    changePoints = arma::sort(changePoints);
-    regimes = arma::join_rows(arma::Row<int>{0}, changePoints, arma::Row<int>{nr});
-    currentErrs = updatedErrs;
   }
 
   return List::create(
-    Named("Regimes") = regimes
+    Named("Regimes") = changePoints
   );
 
 
