@@ -15,7 +15,7 @@
 
 
 
-## OOP interface (current)
+## Cureent OOP interface 
 
 Users first initialise a (R6) BinSeg object, based on a time series matrix, the number of regimes (k), and a cost function. 
 ```
@@ -34,7 +34,7 @@ BinSegObj$plot()
 
 
 
-## OOP interface (planned)
+## Planned OOP interface 
 
 Users first create a C++ "Cost" object based on a time series. This object handles the computation of segment costs. 
 
