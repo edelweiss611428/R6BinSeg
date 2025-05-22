@@ -44,7 +44,7 @@ public:
     }
 
     int len = end - start;
-    double sumErrXsq =  arma::sum(csXsq.row(end) - csXsq.row(start));
+    double sumErrXsq =  arma::sum(csXsq.row(end) - csXsq.row(start)); //cost from start+1 to end-1
     double sqErrsumX =  std::pow(arma::norm(csX.row(end) - csX.row(start),2), 2);
 
     return sumErrXsq - sqErrsumX/len;
@@ -70,9 +70,11 @@ inline List miniOptCpp(const Cost& Xnew, const int& start, const int& end) {
 
   int len = end - start;
 
-  if(len == 1){
+  if(len == 1 or len == 0){
     return List::create(
-      Named("valid") = false
+      Named("valid") = false,
+      Named("lErr") = std::numeric_limits<double>::infinity(),
+      Named("rErr") = std::numeric_limits<double>::infinity()
     );
   } else if(len == 2){
     return List::create(
@@ -80,7 +82,9 @@ inline List miniOptCpp(const Cost& Xnew, const int& start, const int& end) {
       Named("err") = 0,
       Named("lErr") = 0,
       Named("rErr") = 0,
-      Named("cp") = start + 1
+      Named("start") = start,
+      Named("cp") = start+1,
+      Named("end") = end
     );
   }
 
@@ -108,18 +112,19 @@ inline List miniOptCpp(const Cost& Xnew, const int& start, const int& end) {
   }
 
   return List::create(
-      Named("valid") = true,
-      Named("err") = minErr,
-      Named("lErr") = minlErr,
-      Named("rErr") = minrErr,
-      Named("cp") = cp
+    Named("valid") = true,
+    Named("err") = minErr,
+    Named("lErr") = minlErr,
+    Named("rErr") = minrErr,
+    Named("start") = start,
+    Named("cp") = cp,
+    Named("end") = end
   );
 
 }
 
-
 // [[Rcpp::export]]
-List binSegCpp(Rcpp::XPtr<Cost> Xptr, const int& maxNRegimes) {
+List slowBinSegCpp(Rcpp::XPtr<Cost> Xptr, const int& maxNRegimes) {
   Cost& Xnew = *Xptr;
   int nr = Xnew.nr;
   List cpd0 = miniOptCpp(Xnew, 0, nr);
@@ -186,3 +191,96 @@ List binSegCpp(Rcpp::XPtr<Cost> Xptr, const int& maxNRegimes) {
 }
 
 
+// [[Rcpp::export]]
+List fastBinSegCpp(Rcpp::XPtr<Cost> Xptr, const int& maxNRegimes) {
+
+  Cost& Xnew = *Xptr;
+  int nr = Xnew.nr;
+  List cpd0 = miniOptCpp(Xnew, 0, nr);
+  if(maxNRegimes > nr){
+    stop("The maximum number of regimes must be less than or equal to the number of observations.");;
+  }
+
+  if(nr == 1){
+    stop("There is no changepoint as there is only one observation!");
+  } else if (maxNRegimes == 2){
+    return cpd0;
+  }
+
+
+  IntegerVector changePoints(maxNRegimes-1);
+  IntegerMatrix regimes(2, maxNRegimes);
+  IntegerVector savedCps(maxNRegimes);
+
+  LogicalVector visited(maxNRegimes, false);
+  NumericVector currentErrs(maxNRegimes);
+  NumericVector tempErrs(maxNRegimes);
+  NumericVector leftErrs(maxNRegimes);
+  NumericVector rightErrs(maxNRegimes);
+  NumericVector gains(maxNRegimes);
+
+
+  changePoints[0] = Rcpp::as<int>(cpd0["cp"]);
+
+  currentErrs[0] = Rcpp::as<double>(cpd0["lErr"]);
+  currentErrs[1] = Rcpp::as<double>(cpd0["rErr"]);
+
+  //1d indexing for matrices
+  regimes[0] = 0;
+  regimes[1] = Rcpp::as<int>(cpd0["cp"]);
+  regimes[2] = Rcpp::as<int>(cpd0["cp"]);
+  regimes[3] = nr;
+
+  int nRegimes = 2;
+
+  while(nRegimes < maxNRegimes){
+
+    int bestIdx;
+
+    double maxGain = -std::numeric_limits<double>::infinity();
+
+    for(int i = 0; i < nRegimes; i++){
+
+
+      if(not visited[i]){
+
+        visited[i] = true;
+        List cpdi = miniOptCpp(Xnew, regimes[2*i], regimes[2*i+1]);
+
+
+        if(not cpdi["valid"]){
+          gains[i] = -std::numeric_limits<double>::infinity();
+          continue;
+        }
+
+        savedCps[i] = Rcpp::as<int>(cpdi["cp"]);
+        leftErrs[i] = Rcpp::as<double>(cpdi["lErr"]);
+        rightErrs[i] = Rcpp::as<double>(cpdi["rErr"]);
+        gains[i] = currentErrs[i] - Rcpp::as<double>(cpdi["err"]);
+      }
+
+      if(gains[i] > maxGain){
+        maxGain = gains[i];
+        bestIdx = i;
+      }
+    }
+
+    changePoints[nRegimes-1] = savedCps[bestIdx];
+    IntegerVector aIdx = IntegerVector::create(bestIdx, nRegimes);
+    visited[aIdx] = false;
+    currentErrs[aIdx] = NumericVector::create(leftErrs[bestIdx], rightErrs[bestIdx]);
+    int tEnd = regimes[2*bestIdx+1];
+    regimes[2*bestIdx+1] = savedCps[bestIdx];
+    regimes[2*nRegimes] = savedCps[bestIdx];
+    regimes[2*nRegimes+1] = tEnd;
+    nRegimes++;
+
+  }
+
+  return List::create(
+    Named("regimes") = regimes,
+    Named("changePoints") = changePoints
+  );
+
+
+}

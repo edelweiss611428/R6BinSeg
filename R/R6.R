@@ -119,7 +119,7 @@ for(i in 1:1000){
 }
 
 N = 70000
-k = 10
+k = 70
 p =  rep(1/k, k)
 
 # Draw one sample
@@ -127,5 +127,4 @@ p =  rep(1/k, k)
 # X = rnorm(N, rep(rnorm(k,0, 25), counts), 5)
 Xnew = createCostObj(as.matrix(X))
 microbenchmark::microbenchmark(binSegCpp(Xnew, k),
-                               binSegCpp2(Xnew, k),
                                binsegRcpp::binseg_normal(X, k))
