@@ -1,3 +1,4 @@
-exportPattern("^[[:alpha:]]+")
 importFrom(Rcpp, evalCpp)
 useDynLib(R6demo, .registration = TRUE)
+export(BinSegL2)
+importFrom(R6, R6Class)

@@ -11,48 +11,34 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// getCumsumCpp
-inline arma::mat getCumsumCpp(const arma::mat& X);
-RcppExport SEXP _R6demo_getCumsumCpp(SEXP XSEXP) {
+// slowBinSegCpp
+List slowBinSegCpp(const arma::mat& tsMat, const int& maxNRegimes);
+RcppExport SEXP _R6demo_slowBinSegCpp(SEXP tsMatSEXP, SEXP maxNRegimesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
-    rcpp_result_gen = Rcpp::wrap(getCumsumCpp(X));
-    return rcpp_result_gen;
-END_RCPP
-}
-// createCostObj
-SEXP createCostObj(const arma::mat& X);
-RcppExport SEXP _R6demo_createCostObj(SEXP XSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
-    rcpp_result_gen = Rcpp::wrap(createCostObj(X));
-    return rcpp_result_gen;
-END_RCPP
-}
-// binSegCpp
-List binSegCpp(Rcpp::XPtr<Cost> Xptr, const int& maxNRegimes);
-RcppExport SEXP _R6demo_binSegCpp(SEXP XptrSEXP, SEXP maxNRegimesSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::XPtr<Cost> >::type Xptr(XptrSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type tsMat(tsMatSEXP);
     Rcpp::traits::input_parameter< const int& >::type maxNRegimes(maxNRegimesSEXP);
-    rcpp_result_gen = Rcpp::wrap(binSegCpp(Xptr, maxNRegimes));
+    rcpp_result_gen = Rcpp::wrap(slowBinSegCpp(tsMat, maxNRegimes));
     return rcpp_result_gen;
 END_RCPP
 }
-
-RcppExport SEXP _rcpp_module_boot_costModule();
+// fastBinSegCpp
+List fastBinSegCpp(const arma::mat& tsMat, const int& maxNRegimes);
+RcppExport SEXP _R6demo_fastBinSegCpp(SEXP tsMatSEXP, SEXP maxNRegimesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type tsMat(tsMatSEXP);
+    Rcpp::traits::input_parameter< const int& >::type maxNRegimes(maxNRegimesSEXP);
+    rcpp_result_gen = Rcpp::wrap(fastBinSegCpp(tsMat, maxNRegimes));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_R6demo_getCumsumCpp", (DL_FUNC) &_R6demo_getCumsumCpp, 1},
-    {"_R6demo_createCostObj", (DL_FUNC) &_R6demo_createCostObj, 1},
-    {"_R6demo_binSegCpp", (DL_FUNC) &_R6demo_binSegCpp, 2},
-    {"_rcpp_module_boot_costModule", (DL_FUNC) &_rcpp_module_boot_costModule, 0},
+    {"_R6demo_slowBinSegCpp", (DL_FUNC) &_R6demo_slowBinSegCpp, 2},
+    {"_R6demo_fastBinSegCpp", (DL_FUNC) &_R6demo_fastBinSegCpp, 2},
     {NULL, NULL, 0}
 };
 

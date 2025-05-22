@@ -1,69 +1,7 @@
 #include <RcppArmadillo.h>
 using namespace Rcpp;
 // [[Rcpp::depends(RcppArmadillo)]]
-
-// [[Rcpp::export]]
-inline arma::mat getCumsumCpp(const arma::mat& X) {
-
-  int nr = X.n_rows;
-  int nc = X.n_cols;
-
-  // Create a matrix with one extra row (initialized to zeros)
-  arma::mat cumsumMat(nr + 1, nc, arma::fill::zeros);
-
-  // Compute cumulative sum starting from the second row
-  cumsumMat.rows(1, nr) = arma::cumsum(X, 0);
-
-  return cumsumMat;
-
-}
-
-
-
-class Cost {
-private:
-  arma::mat X;
-  arma::mat csX; //cumsum(X)
-  arma::mat csXsq; //cumsum(Xsq)
-
-public:
-  int nr;
-
-  Cost(const arma::mat& inputMat) { //initialise a Cost object
-    X = inputMat;
-    csX = getCumsumCpp(inputMat);
-    csXsq = getCumsumCpp(arma::pow(inputMat, 2));
-    nr = X.n_rows;
-  }
-
-
-  double effEvalCpp(int start, int end) const {  //use precomputation
-
-    if(start == end - 1){
-      return(0.0);
-    }
-
-    int len = end - start;
-    double sumErrXsq =  arma::sum(csXsq.row(end) - csXsq.row(start)); //cost from start+1 to end-1
-    double sqErrsumX =  std::pow(arma::norm(csX.row(end) - csX.row(start),2), 2);
-
-    return sumErrXsq - sqErrsumX/len;
-
-  }
-
-};
-
-RCPP_MODULE(costModule) {  //to use the class Cost in R
-  class_<Cost>( "Cost")
-  .constructor<arma::mat>()
-  .method( "effEvalCpp", &Cost::effEvalCpp)
-  ;
-}
-// [[Rcpp::export]]
-SEXP createCostObj(const arma::mat& X) {
-  Rcpp::XPtr<Cost> ptr(new Cost(X), true);
-  return ptr;
-}
+#include "Cost.h"
 
 
 inline List miniOptCpp(const Cost& Xnew, const int& start, const int& end) {
@@ -124,9 +62,9 @@ inline List miniOptCpp(const Cost& Xnew, const int& start, const int& end) {
 }
 
 // [[Rcpp::export]]
-List slowBinSegCpp(Rcpp::XPtr<Cost> Xptr, const int& maxNRegimes) {
+List slowBinSegCpp(const arma::mat& tsMat, const int& maxNRegimes) {
 
-  Cost& Xnew = *Xptr;
+  Cost Xnew(tsMat);
   int nr = Xnew.nr;
   List cpd0 = miniOptCpp(Xnew, 0, nr);
   if(maxNRegimes > nr){
@@ -135,7 +73,9 @@ List slowBinSegCpp(Rcpp::XPtr<Cost> Xptr, const int& maxNRegimes) {
 
   if(nr == 1){
     stop("There is no changepoint as there is only one observation!");
-  } else if (maxNRegimes == 2){
+  }
+
+  if (maxNRegimes == 2){
     return cpd0;
   }
 
@@ -214,9 +154,9 @@ List slowBinSegCpp(Rcpp::XPtr<Cost> Xptr, const int& maxNRegimes) {
 
 
 // [[Rcpp::export]]
-List fastBinSegCpp(Rcpp::XPtr<Cost> Xptr, const int& maxNRegimes) {
+List fastBinSegCpp(const arma::mat& tsMat, const int& maxNRegimes) {
 
-  Cost& Xnew = *Xptr;
+  Cost Xnew(tsMat);
   int nr = Xnew.nr;
   List cpd0 = miniOptCpp(Xnew, 0, nr);
   if(maxNRegimes > nr){
@@ -225,7 +165,9 @@ List fastBinSegCpp(Rcpp::XPtr<Cost> Xptr, const int& maxNRegimes) {
 
   if(nr == 1){
     stop("There is no changepoint as there is only one observation!");
-  } else if (maxNRegimes == 2){
+  }
+
+  if (maxNRegimes == 2){
     return cpd0;
   }
 
