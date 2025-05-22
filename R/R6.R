@@ -95,9 +95,9 @@ binSeg = function(Xnew, maxRegimes = 5, nr){
 
 for(i in 1:1000){
   set.seed(i)
-  N = 350
-  k = 7
-  p =  rep(1/7, 7)
+  N = 400
+  k = 20
+  p =  rep(1/k, k)
 
   # Draw one sample
   counts =  as.vector(rmultinom(n = 1, size = N, prob = p))
@@ -112,7 +112,7 @@ for(i in 1:1000){
   lines(X[1:cpd[3]], col = "violet")
   lines(X[1:cpd[2]], col = "black")
 
-  binseg = c(0, binsegRcpp::binseg_normal(X, 7)$splits[,4]$end)
+  binseg = c(0, binsegRcpp::binseg_normal(X, k)$splits[,4]$end)
   print(all.equal(cpd, sort(binseg)))
   gc()
   Sys.sleep(1)
@@ -123,8 +123,8 @@ k = 10
 p =  rep(1/k, k)
 
 # Draw one sample
-counts =  as.vector(rmultinom(n = 1, size = N, prob = p))
-X = rnorm(N, rep(rnorm(k,0, 25), counts), 5)
+# counts =  as.vector(rmultinom(n = 1, size = N, prob = p))
+# X = rnorm(N, rep(rnorm(k,0, 25), counts), 5)
 Xnew = createCostObj(as.matrix(X))
 microbenchmark::microbenchmark(binSegCpp(Xnew, k),
                                binSegCpp2(Xnew, k),
