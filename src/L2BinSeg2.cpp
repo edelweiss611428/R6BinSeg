@@ -124,13 +124,14 @@ inline List miniOptCpp(const Cost& Xnew, const int& start, const int& end) {
 
 // [[Rcpp::export]]
 List binSegCpp2(Rcpp::XPtr<Cost> Xptr, const int& maxNRegimes) {
+
   Cost& Xnew = *Xptr;
   int nr = Xnew.nr;
   List cpd0 = miniOptCpp(Xnew, 0, nr);
+
   if(maxNRegimes > nr){
     stop("The maximum number of regimes must be less than or equal to the number of observations.");;
   }
-
 
   if(nr == 0){
     stop("There can be no changepoint when there is only one observation.");
@@ -138,8 +139,12 @@ List binSegCpp2(Rcpp::XPtr<Cost> Xptr, const int& maxNRegimes) {
     return cpd0;
   }
 
+  arma::Row<double> cost(maxNRegimes); //Final cpd results - will be updated
   arma::Row<int> changePoints = arma::Row<int>{Rcpp::as<int>(cpd0["cp"])}; //Final cpd results - will be updated
 
+  cost[0] = Xnew.effEvalCpp(0, nr);
+  cost[1] = cpd0["err"];
+  int idx = 2;
   int nRegimes = 2;
   List gbestCp = cpd0;
   List gsbestCp; // global
@@ -148,6 +153,7 @@ List binSegCpp2(Rcpp::XPtr<Cost> Xptr, const int& maxNRegimes) {
   double gtmaxGain = -std::numeric_limits<double>::infinity();
 
   while(nRegimes < maxNRegimes){
+
     List tbestCp; //temporary best Cp
     List tsbestCp; //temporary 2nd best Cp
     double tmaxGain = -std::numeric_limits<double>::infinity();
@@ -159,28 +165,41 @@ List binSegCpp2(Rcpp::XPtr<Cost> Xptr, const int& maxNRegimes) {
     for(int i = 0; i < 2; i++){
       // here we expect that the best split will never have size 1
       if(i == 0){
+
         cpdi = miniOptCpp(Xnew, Rcpp::as<int>(gbestCp["start"]), Rcpp::as<int>(gbestCp["cp"]));
+
         if(!cpdi["valid"]){
           continue;
         }
+
         gain = Rcpp::as<double>(gbestCp["lErr"]) - Rcpp::as<double>(cpdi["err"]);
+
       } else {
+
         cpdi = miniOptCpp(Xnew, Rcpp::as<int>(gbestCp["cp"]), Rcpp::as<int>(gbestCp["end"]));
+
         if(!cpdi["valid"]){
           continue;
         }
+
         gain = Rcpp::as<double>(gbestCp["rErr"]) - Rcpp::as<double>(cpdi["err"]);
+
       }
 
 
       if(gain > tmaxGain){
+
         tsmaxGain = tmaxGain;
         tmaxGain = gain;
+
         tsbestCp = tbestCp;
         tbestCp = cpdi;
+
       } else { //only 2 scenarios - will be optimised later
+
         tsmaxGain = gain;
         tsbestCp = cpdi;
+
       }
 
     }
@@ -188,18 +207,28 @@ List binSegCpp2(Rcpp::XPtr<Cost> Xptr, const int& maxNRegimes) {
     nRegimes++;
     // a > b & c > d
     if(tmaxGain > gsmaxGain){ // if (a > c)
+
       gbestCp = tbestCp; //max1 = a
+      cost[idx] = cost[idx-1] - tmaxGain;
+
       if(tsmaxGain > gsmaxGain){ // if (b > c)
+
         gtbestCp = gsbestCp; //max3 = c
         gtmaxGain = gsmaxGain;
+
         gsbestCp = tsbestCp;//max2 = b
         gsmaxGain = tsmaxGain;
+
       } else{
+
         // gsbestCp = gsbestCp // no change - just a note
         // gsmaxGain = gsmaxGain // no change - just a note
+
         if(tsmaxGain > gtmaxGain){ //b > d?
-          gtbestCp = tsbestCp;
+
+          gtbestCp = tsbestCp; //max3 = b
           gtmaxGain = tsmaxGain;
+
         } else{
           // gtbestCp = gtbestCp // no change - just a note
           // gtmaxGain = gtmaxGain // no change - just a note
@@ -207,26 +236,35 @@ List binSegCpp2(Rcpp::XPtr<Cost> Xptr, const int& maxNRegimes) {
       }
     } else{ //if (a < c)
       gbestCp = gsbestCp; //max1 = c
+      cost[idx] = cost[idx-1] - gsmaxGain;
 
       if(tmaxGain > gtmaxGain){ //if (a > d)
+
         gsbestCp = tbestCp; // max2 = a
         gsmaxGain = tmaxGain;
 
         if(tsmaxGain > gtmaxGain){ //if (b >d)
+
           gtbestCp = tsbestCp; //max3 = b
           gtmaxGain = tsmaxGain;
+
         } else {
+
           // gtbestCp = gtbestCp // no change - just a note
           // gtmaxGain = gtmaxGain // no change - just a note
+
         }
       } else {
+
         gtbestCp = tbestCp; //max3 = a
         gtmaxGain = tmaxGain;
+
         gsbestCp = gtbestCp; //max2 = d
         gsmaxGain = gtmaxGain;
 
       }
     }
+    idx++;
 
     changePoints = arma::join_rows(changePoints, arma::Row<int>{Rcpp::as<int>(gbestCp["cp"])});
 
@@ -235,8 +273,9 @@ List binSegCpp2(Rcpp::XPtr<Cost> Xptr, const int& maxNRegimes) {
 
 
   return List::create(
-    Named("second") = changePoints
-  );
+    Named("second") = changePoints,
+    Named("cost")  = cost
+   );
 }
 
 

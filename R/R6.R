@@ -93,8 +93,6 @@ binSeg = function(Xnew, maxRegimes = 5, nr){
 
 }
 
-binSegCpp(Xnew, k)
-
 for(i in 1:1000){
   set.seed(i)
   N = 350
