@@ -9,7 +9,7 @@
 ✅ Optimise BinSeg - not necessary to loop through all possible splits.    
 **NOTE: Some refactoring is needed.**   
 ⬜ Implement basic model selection criteria.  
-⬜ Wrap these in an R6-based R package.  
+✅ Wrap these in an R6-based R package.  
 ⬜ Implement other popular cost functions to be used in BinSeg (L1, regression discontinuity, AR(k), kernel-based, etc).  
 ⬜ Extend BinSeg take various cost functions (e.g., based on a common class "Cost").  
 
