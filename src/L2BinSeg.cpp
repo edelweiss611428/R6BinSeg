@@ -125,6 +125,7 @@ inline List miniOptCpp(const Cost& Xnew, const int& start, const int& end) {
 
 // [[Rcpp::export]]
 List slowBinSegCpp(Rcpp::XPtr<Cost> Xptr, const int& maxNRegimes) {
+
   Cost& Xnew = *Xptr;
   int nr = Xnew.nr;
   List cpd0 = miniOptCpp(Xnew, 0, nr);
@@ -132,63 +133,84 @@ List slowBinSegCpp(Rcpp::XPtr<Cost> Xptr, const int& maxNRegimes) {
     stop("The maximum number of regimes must be less than or equal to the number of observations.");;
   }
 
-  if(nr == 0){
-    stop("There can be no changepoint when there is only one observation.");
-  } else if (nr == 1 || maxNRegimes == 2){
+  if(nr == 1){
+    stop("There is no changepoint as there is only one observation!");
+  } else if (maxNRegimes == 2){
     return cpd0;
   }
 
-  arma::Row<int> changePoints = arma::Row<int>{Rcpp::as<int>(cpd0["cp"])};
-  arma::Row<int> regimes = arma::join_rows(arma::Row<int>{0}, changePoints, arma::Row<int>{nr});
-  arma::Row<double> updatedErrs = arma::Row<double>{Rcpp::as<double>(cpd0["lErr"]), Rcpp::as<double>(cpd0["rErr"])};
+
+  IntegerVector changePoints(maxNRegimes-1);
+  IntegerMatrix regimes(2, maxNRegimes);
+  IntegerVector savedCps(maxNRegimes);
+
+  NumericVector currentErrs(maxNRegimes);
+  NumericVector tempErrs(maxNRegimes);
+  NumericVector leftErrs(maxNRegimes);
+  NumericVector rightErrs(maxNRegimes);
+  NumericVector gains(maxNRegimes);
+
+
+  changePoints[0] = Rcpp::as<int>(cpd0["cp"]);
+
+  currentErrs[0] = Rcpp::as<double>(cpd0["lErr"]);
+  currentErrs[1] = Rcpp::as<double>(cpd0["rErr"]);
+
+  //1d indexing for matrices
+  regimes[0] = 0;
+  regimes[1] = Rcpp::as<int>(cpd0["cp"]);
+  regimes[2] = Rcpp::as<int>(cpd0["cp"]);
+  regimes[3] = nr;
 
   int nRegimes = 2;
-  List bestCp;
-  int bestSplit;
-  arma::Row<double> currentErrs = updatedErrs;
 
   while(nRegimes < maxNRegimes){
 
+    int bestIdx;
+
     double maxGain = -std::numeric_limits<double>::infinity();
 
-     for(int i = 0; i < nRegimes; i++){
+    for(int i = 0; i < nRegimes; i++){
 
-      List cpdi = miniOptCpp(Xnew, regimes[i], regimes[i+1]);
-      if(!cpdi["valid"]){
+      List cpdi = miniOptCpp(Xnew, regimes[2*i], regimes[2*i+1]);
+
+
+      if(not cpdi["valid"]){
+        gains[i] = -std::numeric_limits<double>::infinity();
         continue;
       }
 
-      double gain = currentErrs[i] - Rcpp::as<double>(cpdi["err"]);
-      if(gain > maxGain){
-        maxGain = gain;
-        bestCp = cpdi;
-        bestSplit = i;
+      savedCps[i] = Rcpp::as<int>(cpdi["cp"]);
+      leftErrs[i] = Rcpp::as<double>(cpdi["lErr"]);
+      rightErrs[i] = Rcpp::as<double>(cpdi["rErr"]);
+      gains[i] = currentErrs[i] - Rcpp::as<double>(cpdi["err"]);
+
+      if(gains[i] > maxGain){
+        maxGain = gains[i];
+        bestIdx = i;
       }
     }
 
+    changePoints[nRegimes-1] = savedCps[bestIdx];
+    IntegerVector aIdx = IntegerVector::create(bestIdx, nRegimes);
+
+    currentErrs[aIdx] = NumericVector::create(leftErrs[bestIdx], rightErrs[bestIdx]);
+    int tEnd = regimes[2*bestIdx+1];
+    regimes[2*bestIdx+1] = savedCps[bestIdx];
+    regimes[2*nRegimes] = savedCps[bestIdx];
+    regimes[2*nRegimes+1] = tEnd;
     nRegimes++;
-    updatedErrs.set_size(nRegimes);
-    updatedErrs.subvec(bestSplit, bestSplit+1) = arma::Row<double>{Rcpp::as<double>(bestCp["lErr"]), Rcpp::as<double>(bestCp["rErr"])};
 
-    for(int j = 0; j < bestSplit; j++){
-      updatedErrs[j] = currentErrs[j];
-    }
-
-    for(int j = bestSplit+2; j < nRegimes; j++){
-      updatedErrs[j] = currentErrs[j-1];
-    }
-    changePoints = arma::join_rows(changePoints, arma::Row<int>{Rcpp::as<int>(bestCp["cp"])});
-    changePoints = arma::sort(changePoints);
-    regimes = arma::join_rows(arma::Row<int>{0}, changePoints, arma::Row<int>{nr});
-    currentErrs = updatedErrs;
   }
 
   return List::create(
-    Named("Regimes") = regimes
+    Named("regimes") = regimes,
+    Named("changePoints") = changePoints
   );
 
 
 }
+
 
 
 // [[Rcpp::export]]
