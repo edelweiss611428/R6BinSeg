@@ -148,7 +148,6 @@ List binSegCpp(Rcpp::XPtr<Cost> Xptr, const int& maxNRegimes) {
 
      for(int i = 0; i < nRegimes; i++){
 
-
       List cpdi = miniOptCpp(Xnew, regimes[i], regimes[i+1]);
       if(!cpdi["valid"]){
         continue;

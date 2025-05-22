@@ -204,11 +204,21 @@ List binSegCpp2(Rcpp::XPtr<Cost> Xptr, const int& maxNRegimes) {
 
     }
 
+    if(gtmaxGain > -999999999999){
+
+      Rcout << "tmaxGain = " << tmaxGain << " cpd " << Rcpp::as<int>(tbestCp["start"])  << " | "<< Rcpp::as<int>(tbestCp["cp"]) << " | " << Rcpp::as<int>(tbestCp["end"]) << std::endl;
+      Rcout << "tsmaxGain = " << tsmaxGain  << " cpd " << Rcpp::as<int>(tsbestCp["start"])  << " | "<< Rcpp::as<int>(tsbestCp["cp"]) << " | " << Rcpp::as<int>(tsbestCp["end"]) << std::endl;
+      Rcout << "gtmaxGain = " << gtmaxGain  << " cpd " << Rcpp::as<int>(gtbestCp["start"])  << " | "<< Rcpp::as<int>(gtbestCp["cp"]) << " | " << Rcpp::as<int>(gtbestCp["end"]) << std::endl;
+      Rcout << "gsmaxGain = " << gsmaxGain  << " cpd " << Rcpp::as<int>(gsbestCp["start"])  << " | "<< Rcpp::as<int>(gsbestCp["cp"]) << " | " << Rcpp::as<int>(gsbestCp["end"]) << std::endl;
+      Rcout << "____" << std::endl;
+    }
+
     nRegimes++;
     // a > b & c > d
     if(tmaxGain > gsmaxGain){ // if (a > c)
 
       gbestCp = tbestCp; //max1 = a
+
       cost[idx] = cost[idx-1] - tmaxGain;
 
       if(tsmaxGain > gsmaxGain){ // if (b > c)
@@ -230,11 +240,14 @@ List binSegCpp2(Rcpp::XPtr<Cost> Xptr, const int& maxNRegimes) {
           gtmaxGain = tsmaxGain;
 
         } else{
+
           // gtbestCp = gtbestCp // no change - just a note
           // gtmaxGain = gtmaxGain // no change - just a note
+
         }
       }
-    } else{ //if (a < c)
+    } else{ //if (a <= c)
+
       gbestCp = gsbestCp; //max1 = c
       cost[idx] = cost[idx-1] - gsmaxGain;
 
@@ -256,21 +269,20 @@ List binSegCpp2(Rcpp::XPtr<Cost> Xptr, const int& maxNRegimes) {
         }
       } else {
 
-        gtbestCp = tbestCp; //max3 = a
-        gtmaxGain = tmaxGain;
-
         gsbestCp = gtbestCp; //max2 = d
         gsmaxGain = gtmaxGain;
 
+        gtbestCp = tbestCp; //max3 = a
+        gtmaxGain = tmaxGain;
+
       }
     }
+
     idx++;
 
     changePoints = arma::join_rows(changePoints, arma::Row<int>{Rcpp::as<int>(gbestCp["cp"])});
 
   }
-
-
 
   return List::create(
     Named("second") = changePoints,
