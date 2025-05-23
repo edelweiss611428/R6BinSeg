@@ -42,10 +42,10 @@ BinSegL2 <- R6Class(
                     main = "binSeg clustering")
 
             sortedRegimes = c(sort(self$cp), self$nr)
-
+            colors = rainbow(self$k)
             for(i in self$k:1){
 
-              lines(self$tsMat[1:sortedRegimes[i]], col = i+1)
+              lines(self$tsMat[1:sortedRegimes[i]], col = colors[i])
 
             }
 
