@@ -39,7 +39,7 @@ BinSegL2 <- R6Class(
           } else{
 
             ts.plot(self$tsMat, xlab = "X",
-                    main = "Binary Segmentation")
+                    main = "binSeg clustering")
 
             sortedRegimes = c(sort(self$cp), self$nr)
 
