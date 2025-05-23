@@ -10,6 +10,8 @@ BinSegL2 <- R6Class(
     tsMat = NULL,
     k = NULL,
     fitted = FALSE,
+    output = NULL,
+    cost = NULL,
 
     initialize = function(tsMat, k) {
       self$tsMat = tsMat
@@ -19,34 +21,48 @@ BinSegL2 <- R6Class(
     },
 
     fit = function() {
-      self$cp = fastBinSegCpp(self$tsMat, self$k)$changePoints
+      self$output = fastBinSegCpp(self$tsMat, self$k)
+      self$cp = self$output$changePoints
+      self$cost = self$output$cost
       self$fitted = TRUE
     },
 
-    plot = function() {
+    plot = function(what = NULL) {
 
-      if(ncol(self$tsMat == 1)){
+      if(is.null(what)){
 
-        if(!self$fitted){
-          ts.plot(self$tsMat, xlab = "X")
-          warning("Should run the fit() method first if want changepoints plotted!")
-        } else{
+        if(ncol(self$tsMat == 1)){ #Current version only plot the k-partition
 
-          ts.plot(self$tsMat, xlab = "X",
-                  main = "Binary Segmentation")
+          if(!self$fitted){
+            ts.plot(self$tsMat, xlab = "X")
+            warning("Should have run the fit() method first!")
+          } else{
 
-          sortedRegimes = c(sort(self$cp), self$nr)
+            ts.plot(self$tsMat, xlab = "X",
+                    main = "Binary Segmentation")
 
-          for(i in self$k:1){
+            sortedRegimes = c(sort(self$cp), self$nr)
 
-            lines(self$tsMat[1:sortedRegimes[i]], col = i+1)
+            for(i in self$k:1){
+
+              lines(self$tsMat[1:sortedRegimes[i]], col = i+1)
+
+            }
 
           }
 
+        } else {
+          print("Currently does not support high-dimensional plots!")
         }
 
-      } else {
-        print("Currently does not support high-dimensional plots!")
+      } else if (what == "cost"){
+
+        if(!self$fitted){
+          stop("Should have run the fit() method first!")
+        } else {
+          ts.plot(self$cost, xlab = "Number of regimes", ylab = "Cost")
+        }
+
       }
 
     }

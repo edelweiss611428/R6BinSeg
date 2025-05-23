@@ -177,12 +177,16 @@ List fastBinSegCpp(const arma::mat& tsMat, const int& maxNRegimes) {
   IntegerVector savedCps(maxNRegimes);
 
   LogicalVector visited(maxNRegimes, false);
+  NumericVector cost(maxNRegimes);
+
+  cost[0] = Xnew.effEvalCpp(0,nr);
+  cost[1] = Rcpp::as<double>(cpd0["err"]);
+
   NumericVector currentErrs(maxNRegimes);
   NumericVector tempErrs(maxNRegimes);
   NumericVector leftErrs(maxNRegimes);
   NumericVector rightErrs(maxNRegimes);
   NumericVector gains(maxNRegimes);
-
 
   changePoints[0] = Rcpp::as<int>(cpd0["cp"]);
 
@@ -237,13 +241,16 @@ List fastBinSegCpp(const arma::mat& tsMat, const int& maxNRegimes) {
     regimes[2*bestIdx+1] = savedCps[bestIdx];
     regimes[2*nRegimes] = savedCps[bestIdx];
     regimes[2*nRegimes+1] = tEnd;
+
+    cost[nRegimes] = cost[nRegimes-1] - maxGain;
     nRegimes++;
 
   }
 
   return List::create(
     Named("regimes") = regimes,
-    Named("changePoints") = changePoints
+    Named("changePoints") = changePoints,
+    Named("cost") = cost
   );
 
 
