@@ -28,8 +28,12 @@ BinSegL2 <- R6Class(
     },
 
     plot = function(what = NULL,
-                    nRegimes = NULL #number of changepoints
-                    ) {
+                    nRegimes = NULL, #number of changepoints
+                    main = NULL) {
+
+      if(is.null(main)){
+        main = "binSeg clustering"
+      }
 
       if(is.null(what)){
 
@@ -41,7 +45,7 @@ BinSegL2 <- R6Class(
           } else if (is.null(nRegimes)){
 
             ts.plot(self$tsMat, xlab = "X",
-                    main = "binSeg clustering")
+                    main = main)
 
             sortedRegimes = c(sort(self$cp), self$nr)
             colors = rainbow(self$k)
@@ -57,7 +61,7 @@ BinSegL2 <- R6Class(
 
               tempCPts = self$cp[1:(nRegimes-1)]
               ts.plot(self$tsMat, xlab = "X",
-                      main = "binSeg clustering")
+                      main = main)
 
               sortedRegimes = c(sort(tempCPts), self$nr)
               colors = rainbow(nRegimes)
