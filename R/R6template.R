@@ -40,7 +40,7 @@ BinSegL2 <- R6Class(
         if(ncol(self$tsMat == 1)){ #Current version only plot the k-partition
 
           if(!self$fitted){
-            ts.plot(self$tsMat, xlab = "X")
+            ts.plot(self$tsMat, xlab = "X", main = main)
             warning("Should have run the fit() method first!")
           } else if (is.null(nRegimes)){
 
