@@ -28,6 +28,7 @@ The following methods are supported:
 BinSegObj$fit() 
 ```
 - $plot(): Plot the k-partition; must be called after BinSegObj$fit(); currently only supports one-dimensional data.
+**NOTE: Now allows user-specified k-partitions.**   
 ```
 BinSegObj$plot() 
 ```
