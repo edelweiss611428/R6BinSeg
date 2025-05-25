@@ -40,11 +40,11 @@ BinSegL2 <- R6Class(
         if(ncol(self$tsMat == 1)){ #Current version only plot the k-partition
 
           if(!self$fitted){
-            ts.plot(self$tsMat, xlab = "X", main = main)
+            ts.plot(self$tsMat, ylab = "X", main = main)
             warning("Should have run the fit() method first!")
           } else if (is.null(nRegimes)){
 
-            ts.plot(self$tsMat, xlab = "X",
+            ts.plot(self$tsMat, ylab = "X",
                     main = main)
 
             sortedRegimes = c(sort(self$cp), self$nr)
@@ -59,12 +59,12 @@ BinSegL2 <- R6Class(
                      length(nRegimes) == 1){
 
             if(nRegimes == 1){
-              ts.plot(self$tsMat, xlab = "X",
+              ts.plot(self$tsMat, ylab = "X",
                       main = main)
             } else if(nRegimes <= self$k){
 
               tempCPts = self$cp[1:(nRegimes-1)]
-              ts.plot(self$tsMat, xlab = "X",
+              ts.plot(self$tsMat, ylab = "X",
                       main = main)
 
               sortedRegimes = c(sort(tempCPts), self$nr)
