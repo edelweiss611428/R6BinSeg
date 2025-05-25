@@ -57,7 +57,11 @@ BinSegL2 <- R6Class(
 
           } else if (is.numeric(nRegimes) &
                      length(nRegimes) == 1){
-            if(nRegimes <= self$k){
+
+            if(nRegimes == 1){
+              ts.plot(self$tsMat, xlab = "X",
+                      main = main)
+            } else if(nRegimes <= self$k){
 
               tempCPts = self$cp[1:(nRegimes-1)]
               ts.plot(self$tsMat, xlab = "X",
