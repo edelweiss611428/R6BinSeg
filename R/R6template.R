@@ -51,7 +51,7 @@ BinSegL2 <- R6Class(
 
             }
 
-          } else if (is.integer(nRegimes) &
+          } else if (is.numeric(nRegimes) &
                      length(nRegimes) == 1){
             if(nRegimes <= self$k){
 
@@ -67,6 +67,8 @@ BinSegL2 <- R6Class(
 
               }
 
+            } else{
+              print("Invalid nRegimes!")
             }
           } else {
             print("Invalid or unsupported method!")
