@@ -27,7 +27,9 @@ BinSegL2 <- R6Class(
       self$fitted = TRUE
     },
 
-    plot = function(what = NULL) {
+    plot = function(what = NULL,
+                    nRegimes = NULL #number of changepoints
+                    ) {
 
       if(is.null(what)){
 
@@ -36,7 +38,7 @@ BinSegL2 <- R6Class(
           if(!self$fitted){
             ts.plot(self$tsMat, xlab = "X")
             warning("Should have run the fit() method first!")
-          } else{
+          } else if (is.null(k)){
 
             ts.plot(self$tsMat, xlab = "X",
                     main = "binSeg clustering")
@@ -49,6 +51,24 @@ BinSegL2 <- R6Class(
 
             }
 
+          } else if (is.integer(nRegimes) & length(is.integer(nRegimes)) == 1){
+            if(nRegimes <= self$k){
+
+              tempCPts = self$cp[1:(nRegimes-1)]
+              ts.plot(self$tsMat, xlab = "X",
+                      main = "binSeg clustering")
+
+              sortedRegimes = c(sort(tempCPts), self$nr)
+              colors = rainbow(nRegimes)
+              for(i in nRegimes:1){
+
+                lines(self$tsMat[1:sortedRegimes[i]], col = colors[i])
+
+              }
+
+            }
+          } else {
+            print("Invalid or unsupported method!")
           }
 
         } else {
