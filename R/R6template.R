@@ -38,7 +38,7 @@ BinSegL2 <- R6Class(
           if(!self$fitted){
             ts.plot(self$tsMat, xlab = "X")
             warning("Should have run the fit() method first!")
-          } else if (is.null(k)){
+          } else if (is.null(nRegimes)){
 
             ts.plot(self$tsMat, xlab = "X",
                     main = "binSeg clustering")
@@ -51,7 +51,8 @@ BinSegL2 <- R6Class(
 
             }
 
-          } else if (is.integer(nRegimes) & length(is.integer(nRegimes)) == 1){
+          } else if (is.integer(nRegimes) &
+                     length(nRegimes) == 1){
             if(nRegimes <= self$k){
 
               tempCPts = self$cp[1:(nRegimes-1)]
