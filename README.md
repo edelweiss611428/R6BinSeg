@@ -1,62 +1,42 @@
-# R6BinSeg - An Object-Oriented R Package for Binary Segmentation via Modern C++
+# R6BinSeg - Object-Oriented Interface for Binary Segmentation via Modern C++
 
-## This package is a demo intended for educational and presentation purposes only!!!
+## Description
+
+`R6BinSeg` is a **demonstration R package** illustrating how to implement
+**binary segmentation (BinSeg)** using a clean **object-oriented design**
+based on:
+
+- **C++ cost objects** (via Rcpp / RcppArmadillo), and
+- a **high-level R6 interface** for fitting, model selection, and plotting.
+
+The package is intended **solely for educational and presentation purposes**.
+It prioritises **clarity of design** over performance, completeness, or API
+stability.
+
+The central design principle is:
+
+> **Binary segmentation should depend on an abstract cost interface, not on a specific cost function.**
+
+---
 
 ## Goals
 
-✅ Provide an unoptimised version of BinSeg based on Rcpp/RcppArmadillo and implement the $\mathcal{O}(1)$ L2 cost function.  
-**NOTE: The current version only returns a user-specified K-partition of the time series without storing smaller partitions and their costs.**   
-✅ Optimise BinSeg - not necessary to loop through all possible splits.    
-**NOTE: Some refactoring is needed.**   
-⬜ Implement basic model selection criteria.  
-✅ Wrap these in an R6-based R package.  
-⬜ Implement other popular cost functions to be used in BinSeg (L1, regression discontinuity, AR(k), kernel-based, etc).  
-⬜ Extend BinSeg take various cost functions (e.g., based on a common class "Cost").  
+- Demonstrate BinSeg implemented in C++ with an $\mathcal{O}(1)$ L2 cost  
+- Show how segmentation logic can be decoupled from cost computation  
+- Provide an R6 interface suitable for teaching, prototyping, and extension  
 
+---
 
+## Design overview
 
-## Cureent OOP interface 
+The package separates responsibilities into two layers:
 
-Users first initialise a (R6) BinSeg object, based on a time series matrix, the number of regimes (k), and a cost function. 
-```
-BinSegObj = BinSeg$new(tsMat = tsMat, k, costFunc = "L2")
-```
-The following methods are supported:
+| Layer | Responsibility |
+|-----|---------------|
+| **Cost object (C++)** | Compute segment cost `cost(start, end)` |
+| **BinSeg (R6)** | Run segmentation, select models, plot results |
 
-- $fit(): Perform binary segmentation.
-```
-BinSegObj$fit() 
-```
-- $plot(): Plot the k-partition; must be called after BinSegObj$fit(); currently only supports one-dimensional data.
-**NOTE: Now allows user-specified k-partitions.**   
-```
-BinSegObj$plot() 
-```
+This separation allows the same BinSeg logic to work with **any cost function**
+that conforms to the expected interface.
 
-
-
-## Planned OOP interface 
-
-Users first create a C++ "Cost" object based on a time series. This object handles the computation of segment costs. 
-
-```
-costObj = createCostObj(tsMat, costFunc = "L2") #tsMat: a time series matrix
-```
-Then, initialise a (R6) BinSeg object, based on costObj. BinSeg does not rely on a specific distance method but instead uses an abstract "Cost" object.
-```
-BinSegObj = BinSeg$new(costObj = costObj)
-```
-The following methods are supported:
-
-- $fit(): Perform binary segmentation.
-```
-BinSegObj$fit(minK = 2, maxK = 12, ...) 
-```
-- $predict(): Return the optimal segmentation based on the AIC (by default) or a user-provided K; must be called after BinSegObj$fit().
-```
-BinSegObj$predict(K = NULL, criterion = "AIC")
-```
-- $plot(): Plot the optimal segmentation based on the AIC (by default) or a user-provided K; must be called after BinSegObj$fit().
-```
-BinSegObj$plot(K = NULL, whichDim = NULL, criterion = "AIC") 
-```
+---
