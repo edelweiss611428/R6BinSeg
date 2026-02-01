@@ -40,4 +40,4 @@ This enables:
 
 to be used interchangeably through one common C++ base class. From the perspective of the BinSeg algorithm, all costs are just `CostBase`.
 
-This package extends the design pattern introduced in: [`Animal Crossing`](https://github.com/edelweiss611428/AnimalCrossing)
+This package extends the design pattern introduced in: [`AnimalCrossing`](https://github.com/edelweiss611428/AnimalCrossing)
