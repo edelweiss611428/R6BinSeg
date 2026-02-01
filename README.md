@@ -1,5 +1,6 @@
 # R6BinSeg
-Object-Oriented Binary Segmentation with a Polymorphic Cost Interface 
+Object-Oriented Binary Segmentation with a Polymorphic Cost Interface
+*(Currently in progress)*
 
 ## Overview
 
