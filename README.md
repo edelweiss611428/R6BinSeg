@@ -11,7 +11,7 @@ based on:
 
 - Modern C++ cost objects (via Rcpp/RcppArmadillo)
 - A high-level R6 interface for segmentation workflows
-- A single abstract cost interface shared by both C++ and R`defined costs
+- A single abstract cost interface shared by both C++ and R-defined costs
 
 The package is intended solely for educational and presentation purposes.
 It prioritises clarity of design over performance, completeness, or API
