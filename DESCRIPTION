@@ -1,18 +1,24 @@
-Package: R6demo
+Package: R6BinSeg
 Type: Package
-Title: Demonstration of R6 and Rcpp Integration in R
-Version: 0.0.0.9000
+Title: R6-Based Binary Segmentation with Rcpp Backends
+Version: 0.1.0
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
-Description: A simple demonstration package that shows how to integrate C++ 
-    methods into R6 classes in R. Intended for educational purposes only.
+    person("Minh Long", "Nguyen", , "edelweiss611428@gmail.com", role = c("aut", "cre"))
+Description: Implements binary segmentation for change-point detection using an 
+    R6 interface with interchangeable cost-function objects derived from a common 
+    CostBase abstraction. Supports both user-defined cost functions in R and 
+    high-performance C++ cost implementations via Rcpp and RcppArmadillo. The 
+    framework is designed for extensibility, allowing new cost functions and 
+    segmentation strategies to be added seamlessly while maintaining efficient 
+    C++ backends for core computation.
 Encoding: UTF-8
+License: CC BY 4.0
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
-License: CC BY 4.0
 LinkingTo: 
     Rcpp,
     RcppArmadillo
 Imports: 
     Rcpp,
-    R6
+    R6,
+    methods
