@@ -11,38 +11,17 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// slowBinSegCpp
-List slowBinSegCpp(const arma::mat& tsMat, const int& maxNRegimes);
-RcppExport SEXP _R6demo_slowBinSegCpp(SEXP tsMatSEXP, SEXP maxNRegimesSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type tsMat(tsMatSEXP);
-    Rcpp::traits::input_parameter< const int& >::type maxNRegimes(maxNRegimesSEXP);
-    rcpp_result_gen = Rcpp::wrap(slowBinSegCpp(tsMat, maxNRegimes));
-    return rcpp_result_gen;
-END_RCPP
-}
-// fastBinSegCpp
-List fastBinSegCpp(const arma::mat& tsMat, const int& maxNRegimes);
-RcppExport SEXP _R6demo_fastBinSegCpp(SEXP tsMatSEXP, SEXP maxNRegimesSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type tsMat(tsMatSEXP);
-    Rcpp::traits::input_parameter< const int& >::type maxNRegimes(maxNRegimesSEXP);
-    rcpp_result_gen = Rcpp::wrap(fastBinSegCpp(tsMat, maxNRegimes));
-    return rcpp_result_gen;
-END_RCPP
-}
+
+RcppExport SEXP _rcpp_module_boot_cost_module();
+RcppExport SEXP _rcpp_module_boot_binseg_module();
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_R6demo_slowBinSegCpp", (DL_FUNC) &_R6demo_slowBinSegCpp, 2},
-    {"_R6demo_fastBinSegCpp", (DL_FUNC) &_R6demo_fastBinSegCpp, 2},
+    {"_rcpp_module_boot_cost_module", (DL_FUNC) &_rcpp_module_boot_cost_module, 0},
+    {"_rcpp_module_boot_binseg_module", (DL_FUNC) &_rcpp_module_boot_binseg_module, 0},
     {NULL, NULL, 0}
 };
 
-RcppExport void R_init_R6demo(DllInfo *dll) {
+RcppExport void R_init_R6BinSeg(DllInfo *dll) {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
 }
