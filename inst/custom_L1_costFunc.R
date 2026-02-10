@@ -21,6 +21,3 @@ bs <- BinSeg$new(cost, minSize = 5)
 bs$fit()
 plot(x, type = "l", main = "Binary segmentation")
 abline(v = bs$predict(5), col = "red", lwd = 2)
-
-
-system.file("examples/custom_L1_costFunc.R", package = "R6BinSeg") |> source()
