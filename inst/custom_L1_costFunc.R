@@ -16,10 +16,12 @@ f <- function(s,e){
   sum(abs(x[(s+1):e] - median(x[(s+1):e])))
 }
 
+# Custom L1 cost module
 cost <- RCostClass$new(f, length(x))
 bs <- BinSeg$new(cost, minSize = 5)
 bs$fit()
 
+# Built-in L2 cost module
 
 costL2 = Cost_L2$new(matrix(x))
 bs_l2 <- BinSeg$new(costL2, minSize = 5)
