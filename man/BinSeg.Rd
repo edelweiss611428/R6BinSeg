@@ -58,7 +58,7 @@ Initialise BinSeg
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{costObject}}{A CostBase object (e.g. \code{Cost_L2} or \code{RCostClass}).}
+\item{\code{costObject}}{A CostBase object (e.g. \code{Cost_L1}, \code{Cost_L2} or \code{RCostClass}).}
 
 \item{\code{minSize}}{Minimum allowed segment length.}
 

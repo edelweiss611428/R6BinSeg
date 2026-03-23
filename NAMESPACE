@@ -2,6 +2,9 @@
 
 export(.onLoad)
 export(BinSeg)
+export(Cost_L1)
+export(Cost_L2)
+export(RCostClass)
 import(methods)
 importFrom(R6,R6Class)
 importFrom(Rcpp,loadModule)

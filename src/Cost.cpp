@@ -39,6 +39,25 @@ double Cost_L2::eval(int start, int end) const {
     std::pow(arma::norm(csX.row(end) - csX.row(start), 2), 2) / len;
 }
 
+// ========================================================
+// Cost_L1
+// ========================================================
+
+Cost_L1::Cost_L1(const arma::mat& inputMat){
+
+  X = inputMat;
+  nr = X.n_rows;
+}
+
+double Cost_L1::eval(int start, int end) const {
+
+  if(start >= end-1) return 0.0;
+
+  arma::mat segment = X.rows(start, end - 1);
+  arma::rowvec med = arma::median(segment, 0);
+
+  return arma::accu(arma::abs(segment.each_row() - med));
+}
 
 // ========================================================
 // RCostClass
@@ -64,6 +83,12 @@ RCPP_MODULE(cost_module){
     .constructor<arma::mat>()
     .method("eval", &Cost_L2::eval)
     .method("size", &Cost_L2::size);
+
+  class_<Cost_L1>("Cost_L1")
+    .derives<CostBase>("CostBase")
+    .constructor<arma::mat>()
+    .method("eval", &Cost_L1::eval)
+    .method("size", &Cost_L1::size);
 
   class_<RCostClass>("RCostClass")
     .derives<CostBase>("CostBase")

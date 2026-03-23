@@ -38,6 +38,24 @@ RCPP_EXPOSED_CLASS(CostBase)
 
 RCPP_EXPOSED_CLASS(Cost_L2)
 
+  // ============================================================
+  // L1 cost
+  // ============================================================
+
+  class Cost_L1 : public CostBase {
+
+    public:
+      arma::mat X;
+      int nr;
+
+      Cost_L1(const arma::mat& inputMat);
+
+      double eval(int start, int end) const override;
+
+      int size() const override {return nr; }
+  };
+
+  RCPP_EXPOSED_CLASS(Cost_L1)
 
 class RCostClass : public CostBase {
 

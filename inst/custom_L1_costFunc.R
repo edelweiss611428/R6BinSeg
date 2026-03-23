@@ -27,10 +27,23 @@ costL2 = Cost_L2$new(matrix(x))
 bs_l2 <- BinSeg$new(costL2, minSize = 5)
 bs_l2$fit()
 
+# Built-in L1 cost module
+costL1 = Cost_L1$new(matrix(x))
+bs_l1 <- BinSeg$new(costL1, minSize = 5)
+bs_l1$fit()
+
 
 par(mfrow = c(1,2))
 plot(x, type = "l", main = "binSeg (L1)")
 abline(v = bs$predict(10), col = "red", lwd = 2)
 plot(x, type = "l", main = "binSeg (L2)")
 abline(v = bs_l2$predict(10), col = "red", lwd = 2)
+par(mfrow = c(1,1))
+
+# Compare default L1 and custom L1
+par(mfrow = c(1,2))
+plot(x, type = "l", main = "binSeg (custom L1)")
+abline(v = bs$predict(10), col = "red", lwd = 2)
+plot(x, type = "l", main = "binSeg (built-in L1)")
+abline(v = bs_l1$predict(10), col = "red", lwd = 2)
 par(mfrow = c(1,1))

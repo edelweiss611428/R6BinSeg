@@ -2,6 +2,7 @@
 using namespace Rcpp;
 // [[Rcpp::depends(RcppArmadillo)]]
 #include "Cost.h"
+#include <queue>
 
 
 IntegerVector binSegPredCpp(const IntegerVector& bkps,
@@ -99,7 +100,7 @@ inline Segment miniOptHeapCpp(const CostBase& costModule, int start, int end, in
   auto allBkps = arma::regspace<arma::ivec>(start, jump, end); //all breakpoinbts
   allBkps = allBkps(arma::find((allBkps - start >= minSize) % (end - allBkps >= minSize)));
   //(start, End]
-  for(int i = 0; i < allBkps.n_elem; i++){
+  for(arma::uword i = 0; i < allBkps.n_elem; i++){
 
     tempCp = allBkps(i);
     lErr = costModule.eval(start,tempCp);

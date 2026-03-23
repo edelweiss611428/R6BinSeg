@@ -1,3 +1,30 @@
+#' Cost_L1 cost module
+#'
+#' @description Computes the L1 cost for a segment of a matrix.
+#' @details The L1 cost is the sum of absolute deviations from the median.
+#'
+#' @name Cost_L1
+#' @export
+NULL
+
+#' Cost_L2 cost module
+#'
+#' @description Computes the L2 cost (squared error) for a segment of a matrix.
+#' @details The L2 cost is the sum of squared deviations from the mean.
+#'
+#' @name Cost_L2
+#' @export
+NULL
+
+#' R-based custom cost module
+#'
+#' @description Provides a bridge for user-supplied cost functions implemented in R.
+#' @details Allows flexible experimentation with any R-based cost function.
+#'
+#' @name RCostClass
+#' @export
+NULL
+
 #' Binary segmentation with modular cost objects
 #'
 #' @docType class
@@ -33,7 +60,7 @@ BinSeg = R6Class(
 
     #' @description Initialise BinSeg
     #'
-    #' @param costObject A CostBase object (e.g. \code{Cost_L2} or \code{RCostClass}).
+    #' @param costObject A CostBase object (e.g. \code{Cost_L1}, \code{Cost_L2} or \code{RCostClass}).
     #' @param minSize Minimum allowed segment length.
     #' @param jump Grid spacing for candidate split locations.
     #'
@@ -41,7 +68,7 @@ BinSeg = R6Class(
     #'
     #'
     initialize = function(costObject, minSize = 1, jump = 1) {
-      if (missing(costObject)) stop("Provide a costObject (Cost_L2 / RCostClass / ...).")
+      if (missing(costObject)) stop("Provide a costObject (Cost_L1 / Cost_L2 / RCostClass / ...).")
       if (minSize < 1) stop("minSize must be >= 1")
       if (jump < 1) stop("jump must be >= 1")
 
