@@ -48,6 +48,7 @@ x <- c(
   rnorm(segSize,  5, 0.3) + rt(segSize, 1) * sample(c(0,1), segSize, TRUE, prob = c(p_outl, 1 - p_outl))
 )
 ```
+<img width="1736" height="822" alt="image" src="https://github.com/user-attachments/assets/0fcbc1da-db92-4513-92bb-63545d7dda51" />
 
 ---
 
@@ -98,6 +99,9 @@ abline(v = cp_l2, col = "red", lwd = 2)
 
 par(mfrow = c(1, 1))
 ```
+
+<img width="1736" height="822" alt="image" src="https://github.com/user-attachments/assets/e67d6d02-71a7-4f69-8670-d30daf6ba8d6" />
+
 
 ---
 
