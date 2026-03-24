@@ -68,7 +68,7 @@ bs <- BinSeg$new(cost, minSize = 5)
 bs$fit()
 
 # Extract change-points
-cp_l1 <- bs$predict(10)
+cp_l1 <- bs$predict(10) # linear_penalty = 10
 ```
 
 ---
@@ -81,7 +81,7 @@ costL2 <- Cost_L2$new(matrix(x))
 bs_l2 <- BinSeg$new(costL2, minSize = 5)
 bs_l2$fit()
 
-cp_l2 <- bs_l2$predict(10)
+cp_l2 <- bs_l2$predict(10)  # linear_penalty = 10
 ```
 
 ---
