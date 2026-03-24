@@ -2,8 +2,6 @@
 
 **Object-Oriented Binary Segmentation with a Polymorphic Cost Interface**
 
-*(Project currently in progress)*
-
 ## Overview
 
 `R6BinSeg` is a demonstration R package illustrating how to implement
